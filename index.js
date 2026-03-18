@@ -4,6 +4,7 @@ const requestLoggen = require('./middlewares/loggen');
 const cors =  require('cors');
 const app = express();                                                  //inicia a aplicação EXPRESS                                             
 
+app.use(express.static('build'));
 app.use(express.json());                                                //permite receber requisições/fomurlários JSON
 app.use(requestLoggen);
 app.use(cors());                                                        //permite receber e fazer requisições de outro domínio                             
@@ -84,7 +85,7 @@ app.post('/api/notes', (request, response) =>{
 });*/
 
 app.listen(PORT, ()=>{
-    console.log(`SERVER RUNNING ON PORT ${PORT}`);
+    console.log(`Acesse: http://localhost:${PORT}`);
 })
 
 
