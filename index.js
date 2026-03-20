@@ -1,102 +1,107 @@
-//const http = require('http');                                       importa módulo 
 const express = require('express');
-const requestLoggen = require('./middlewares/loggen');
-const cors =  require('cors');
-const app = express();                                                  //inicia a aplicação EXPRESS                                             
+const morgan = require('morgan');
+const cors = require('cors');
+const app = express();
 
+app.use(express.json());
+app.use(morgan('tiny'));
+app.use(cors());
 app.use(express.static('build'));
-app.use(express.json());                                                //permite receber requisições/fomurlários JSON
-app.use(requestLoggen);
-app.use(cors());                                                        //permite receber e fazer requisições de outro domínio                             
 
-const PORT = process.env.PORT || 3001;
-
-let notes = [
-    {
-        id: 1,
-        content: "HTML is easy",
-        important: true
-    },
-    {
-        id: 2,
-        content: "Browser can execute only JavaScript",
-        important: false
-    },
-    {
-        id: 3,
-        content: "GET and POST are the most important methods of HTTP protocol",
-        important: true
-    }
+let persons = [
+  {
+    "id": 1,
+    "name": "Arto Hellas",
+    "number": "040-123456"
+  },
+  {
+    "id": 2,
+    "name": "Ada Lovelace",
+    "number": "39-44-5323523"
+  },
+  {
+    "id": 3,
+    "name": "Dan Abramov",
+    "number": "12-43-234345"
+  },
+  {
+    "id": 4,
+    "name": "Mary Poppendieck",
+    "number": "39-23-6423122"
+  }
 ]
 
 
-app.get('/', (request, response) => {                                   //ROTA RAIZ DA APLICAÇÃO REQUEST: RECEBE RESPONSE: RESPONDE
-    response.send('<h1>Hello World!</h1>')  
+app.get('/', (req, res) => {
+  res.send('<h1> Hello Word </h1>');
 });
 
-app.get('/api/notes', (request, response) => {                          //ROTA PARA RESPONDER REQUISIÇÕES DAS NOTAS
-    response.json(notes);
+app.get('/info', (req, res) => {
+  const time = new Date();
+  res.send(`<p>Phonebook has info for ${persons.length} people</p> </br> ${time} `);
 });
 
 
-app.get('/api/notes/:id', (request, response) =>{                       //
-    const id = Number(request.params.id);                               //REQUEST CAPTURA O VALOR SOLICITADO EM FORMATO STRING E CONVERTE PARA NUMBER PARA COMPARAÇÃO
-    const note = notes.find(note => note.id === id);
-    if(note){                                                           //VERIFICA SE A NOTA FOI ENCONTRADA SE SIM ENVIA
-        response.json(note);
-    }else{                                                              //SE NÃO HOUVER É ENVIADO UM CÓDIGO DE ERRO 
-        response.status(404).end()
-    }
-    
+app.get('/api/persons', (req, res) => {
+  res.json(persons);
 });
 
-app.delete('/api/notes/:id', (request, response) =>{
-    const id = Number(request.params.id);
-    notes = notes.filter(note => note.id !== id);                       //refaz o array dos notes somente com as notas de ID diferente do ID enviado
-    response.status(204).end();
+
+app.get('/api/persons/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const person = persons.find(person => person.id === id);
+  console.log(person);
+  if (person) { res.json(person) }
+  else {
+    res.status(404).end();
+  }
 });
 
-app.post('/api/notes', (request, response) =>{
 
-    const body = request.body;                                           // RESQUEST acessa o body para recuperar os dados enviados via POST
-
-    if(!body.content){
-        return response.status(400).json({
-            error: 'content missing'
-        })
-    }
-
-    const maxID = notes.length > 0 ? Math.max(...notes.map(n => n.id)):0; //descobre o maior id da lista
-
-    const note = {
-        content: body.content,
-        important: body.important,
-        id: maxID + 1
-    }
-    
-    notes = notes.concat(note);
-    console.log(note);
-    response.json(note);
-})
+app.delete('/api/persons/:id', (req, res) => {
+  const id = Number(req.params.id);
+  persons = persons.filter(person => person.id !== id);
+  res.status(204).end();
+});
 
 
-/*app.listen(3000, ()=>{
-    console.log(`Acesse: http://localhost:3000`);
-});*/
-
-app.listen(PORT, ()=>{
-    console.log(`Acesse: http://localhost:${PORT}`);
-})
+app.post('/api/persons', (req, res) => {
+  const person = req.body;
 
 
-/*const app = http.createServer((request, response) =>{                 Usa o metodo CREATESERVER DO módulo importado
-                                                                        para criar um servidor WEB  
-    response.writeHead(200, {'Content-type': 'text/plain'});        
-    response.end(JSON.stringify(notes));                            Transforma os objetos JavaScript em formato JSON e envia ao servidor 
-});*/
+  if (!person) {
+    return res.status(400).json({
+      error: 'Necessário informar um contato para adicionar '
+    });
+  }
+
+  if (!person.name || !person.number) {
+    return res.status(400).json({
+      error: 'Para que o contato sejá adicionado é necessário informar nome e número'
+    });
+  }
+
+  if (persons.find(p => person.name === p.name)) {
+    return res.status(400).json({
+      error: 'o nome deve ser exclusivo'
+    });
+  }
+
+  const newPerson = {
+    name: person.name,
+    number: person.number,
+    id: Math.random() * (1000 - 1) + 1
+  };
+
+  persons = persons.concat(newPerson);
+  console.log(newPerson);
+  res.json(person);
 
 
+});
 
+const port = process.env.PORT || 3001;
 
-/*app.listen(3000);                                                    faz com que o servidor receba requisições na porta 3001
-console.log("Acesse o servidor: http://localhost:3000");  */          
+app.listen(port, () => {
+  console.log(`Acesse: http://localhost:${port}`);
+});

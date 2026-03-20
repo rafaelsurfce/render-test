@@ -1,11 +1,12 @@
 {
-  "name": "pasta4",
+  "name": "exerc06",
   "version": "1.0.0",
-  "description": "Estudo de backend - Introdução ao node",
+  "description": "Atividade backend exercício06 Phonebook",
   "keywords": [
-    "back-end",
-    "node",
-    "fullstack"
+    "exerc06",
+    "FullStack",
+    "Phonebook",
+    "backend"
   ],
   "license": "ISC",
   "author": "Rafaelsurfce",
@@ -13,12 +14,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
     "dev": "nodemon index.js"
   },
   "dependencies": {
     "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "morgan": "^1.10.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
